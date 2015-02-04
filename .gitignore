@@ -1,0 +1,9 @@
+drupal/compile-errors.log
+drupal/compile.log
+drupal/drupal/config.json
+drupal/ext/*
+drupal/ext/*/*
+drupal/.temp/
+drupal/ext/.libs/
+!drupal/ext/kernel
+!drupal/ext/kernel/*
