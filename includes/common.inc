@@ -2339,12 +2339,6 @@ function drupal_http_header_attributes(array $attributes = array()) {
  * @ingroup sanitization
  */
 function drupal_attributes(array $attributes = array()) {
-  echo serialize($attributes) . "\n";
-  $test = new stdClass();
-  $test->arne = new stdClass();
-  $test->arne->weise[] = "notch";
-  $test->arne->weise[] = "top";
-  echo serialize($test) . "\n";
   return Drupal\Common::drupal_attributes($attributes);
 }
 
