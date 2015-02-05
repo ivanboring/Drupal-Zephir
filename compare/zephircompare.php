@@ -126,9 +126,9 @@ if(!$type) {
 					$opposedvalues = $output['drupal'][$functionname]->performance_runs->{$amount};
 					$time = $values->time - $opposedvalues->time;
 					if($time > 0) {
-						cli_output("When running $amount times Zephir is " . round(($time * -1000), 5) . " ms slower");
+						cli_output("When running $amount times Zephir is " . round(($time * 1000), 5) . " ms slower");
 					} else {
-						cli_output("When running $amount times Zephir is " . round(($time * 1000), 5) . " ms faster");
+						cli_output("When running $amount times Zephir is " . round(($time * -1000), 5) . " ms faster");
 					}
 				}
 			}			
@@ -153,9 +153,9 @@ if(!$type) {
 					$opposedvalues = $output['drupal'][$functionname]->performance_runs->{$amount};
 					$time = $values->time - $opposedvalues->time;
 					if($time > 0) {
-						echo "<strong style=\"color: red\">" . round(($time * -1000), 5) . " ms slower</strong><br>";
+						echo "<strong style=\"color: red\">" . round(($time * 1000), 5) . " ms slower</strong><br>";
 					} else {
-						echo "<strong style=\"color: green\">" . round(($time * 1000), 5) . " ms faster</strong><br>";
+						echo "<strong style=\"color: green\">" . round(($time * -1000), 5) . " ms faster</strong><br>";
 					}
 				}
 			}			
