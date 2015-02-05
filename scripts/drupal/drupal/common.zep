@@ -293,27 +293,6 @@ final class Common
         }
         let returnuri .= tempuri;
         return returnuri;
-        /*
-    	while(true) {
-    		let before = uri;
-    		let colonpos = strpos(uri, ":");
-    		if colonpos > 0 {
-    			let protocol = substr(uri, 0, colonpos);
-
-    			if(preg_match("![/?#]!", protocol)) {
-    				break;
-    			}
-
-    			if !isset allowed_protocols[strtolower(protocol)] {
-    				let uri = substr(uri, (colonpos + 1));
-    			}
-    		}
-    		if(before == uri) {
-    			break;
-    		}
-    	}
-
-    	return uri;*/
     }
     
     
