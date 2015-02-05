@@ -2,7 +2,35 @@ namespace Drupal;
 
 final class ZephirHelper 
 {
-	public static final function explode(string delimiter, string realstring) {
+	/**
+	 * Small version of array_slice. Does not allow minus offsets at the moment
+	 */
+	public static final function array_slice(array realarray, int offset, int length = 0)->array {
+		var k, v;
+		int i = 0, end = 0;
+		array output = [];
+
+		if length != 0 {
+			let end = length+offset;
+		}
+		else {
+			let end = (int) self::count(output);
+		}
+
+		for k, v in realarray {
+			if i >= offset && i > end {
+				let output[k] = v;
+			}
+			let i++;
+		}
+
+		return output;
+	}
+
+	/**
+	 * Works as PHP explode
+	 */
+	public static final function explode(string delimiter, string realstring)->array {
 		char ch;
 		array output = [];
 		string tempstring = "";
@@ -39,7 +67,10 @@ final class ZephirHelper
 		return output;
 	}
 
-	public static final function rtrim(string realstring, string trim) {
+	/**
+	 * Works as PHP rtrim
+	 */
+	public static final function rtrim(string realstring, string trim)->string {
 		int stringlength = 0, trimlength = 0, start = 0, i = 0;
 		char match1, match2, ch;
 		string output = "";
@@ -67,7 +98,10 @@ final class ZephirHelper
 		return output;
 	}
 
-	public static final function count(array realarray) {
+	/**
+	 * Works as PHP count
+	 */
+	public static final function count(array realarray)->int {
 		int length = 1;
 		var test;
 
