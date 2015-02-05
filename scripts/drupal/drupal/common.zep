@@ -20,8 +20,8 @@ final class Common
 	 * Around 40% slower than core, not implemented
 	 */
 	public static final function drupal_add_region_content(string region = NULL, var data = NULL) {
-        if !empty region && !empty data {
-			let self::drupal_add_region_content_content[region] = data;
+        if region != "" && !empty data {
+			let self::drupal_add_region_content_content[region][] = data;
 		}
 		return self::drupal_add_region_content_content;
 	}
@@ -66,19 +66,20 @@ final class Common
 		if empty exclude {
 			return query;
 		}
-		elseif empty parent {
+		elseif parent != "" {
 			let exclude = array_flip(exclude);
 		}
 
 		array params = [];
 		for key, value in query {
-			if empty parent {
+			if parent == "" {
 				let string_key = "" . key;
 			} else {
 				let string_key = parent . "[" . key . "]";
 			}
 
 			if isset exclude[string_key] {
+                let params[key] = [];
 				continue;
 			}
 
