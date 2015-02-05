@@ -887,6 +887,8 @@ function drupal_get_filename($type, $name, $filename = NULL) {
  * configuration file.
  */
 function variable_initialize($conf = array()) {
+  Drupal\Bootstrap::variable_initialize($conf);
+  /*
   // NOTE: caching the variables improves performance by 20% when serving
   // cached pages.
   if ($cached = cache_get('variables', 'cache_bootstrap')) {
@@ -913,7 +915,7 @@ function variable_initialize($conf = array()) {
     $variables[$name] = $value;
   }
 
-  return $variables;
+  return $variables;*/
 }
 
 /**
@@ -935,9 +937,10 @@ function variable_initialize($conf = array()) {
  * @see variable_set()
  */
 function variable_get($name, $default = NULL) {
-  global $conf;
+  return Drupal\Bootstrap::variable_get($name, $default);
+  /*global $conf;
 
-  return isset($conf[$name]) ? $conf[$name] : $default;
+  return isset($conf[$name]) ? $conf[$name] : $default;*/
 }
 
 /**
@@ -957,13 +960,14 @@ function variable_get($name, $default = NULL) {
  * @see variable_get()
  */
 function variable_set($name, $value) {
-  global $conf;
+  Drupal\Bootstrap::variable_set($name, $value);
+  /*global $conf;
 
   db_merge('variable')->key(array('name' => $name))->fields(array('value' => serialize($value)))->execute();
 
   cache_clear_all('variables', 'cache_bootstrap');
 
-  $conf[$name] = $value;
+  $conf[$name] = $value;*/
 }
 
 /**
@@ -980,14 +984,15 @@ function variable_set($name, $value) {
  * @see variable_set()
  */
 function variable_del($name) {
-  global $conf;
+  Drupal\Bootstrap::variable_del($name);
+  /*global $conf;
 
   db_delete('variable')
     ->condition('name', $name)
     ->execute();
   cache_clear_all('variables', 'cache_bootstrap');
 
-  unset($conf[$name]);
+  unset($conf[$name]);*/
 }
 
 /**
@@ -2456,7 +2461,8 @@ function _drupal_bootstrap_database() {
  * Loads system variables and all enabled bootstrap modules.
  */
 function _drupal_bootstrap_variables() {
-  global $conf;
+  Drupal\Bootstrap::_drupal_bootstrap_variables(DRUPAL_ROOT);
+  /*global $conf;
 
   // Initialize the lock system.
   require_once DRUPAL_ROOT . '/' . variable_get('lock_inc', 'includes/lock.inc');
@@ -2466,7 +2472,7 @@ function _drupal_bootstrap_variables() {
   $conf = variable_initialize(isset($conf) ? $conf : array());
   // Load bootstrap modules.
   require_once DRUPAL_ROOT . '/includes/module.inc';
-  module_load_all(TRUE);
+  module_load_all(TRUE);*/
 }
 
 /**

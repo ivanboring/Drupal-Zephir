@@ -3,6 +3,7 @@ namespace Drupal;
 final class Bootstrap 
 {
 	private static conf_path_conf = "";
+	private static variable_conf;
 
 	public static final function conf_path(boolean require_settings = TRUE, boolean reset = FALSE, string drupal_root, var serverarray) {
 	  if self::conf_path_conf && !reset {
@@ -69,4 +70,65 @@ final class Bootstrap
 		}
 		return output;
 	}
+
+	public static function variable_initialize(array conf = []) {
+		var cached, variables, value, kname;
+		string name;
+
+		let cached = cache_get("variables", "cache_bootstrap");
+	  	if typeof cached == "object" {
+	    	let variables = cached->data;
+	 	}
+	  	else {
+		    let name = "variable_init";
+		    if !lock_acquire(name, 1) {
+				lock_wait(name);
+				return self::variable_initialize(conf);
+		    }
+		    else {
+				let variables = array_map("unserialize", db_query("SELECT name, value FROM {variable}")->fetchAllKeyed());
+				cache_set("variables", variables, "cache_bootstrap");
+				lock_release(name);
+		    }
+		}
+
+		for kname, value in conf {
+			let variables[name] = value;
+		}
+
+	  	return variables;
+	}
+
+	public static final function variable_get(string name, var defaultvalue = "") {
+		if isset self::variable_conf[name] {
+			return self::variable_conf[name];
+		}
+
+		return defaultvalue;
+	}
+
+	public static final function variable_set(string name, var value) {
+		db_merge("variable")->key(["name": name])->fields(["value": serialize(value)])->execute();
+
+		cache_clear_all("variables", "cache_bootstrap");
+
+		let self::variable_conf[name] = value;
+	}
+
+	public static final function variable_del(string name) {
+		db_delete("variable")->condition("name", name)->execute();
+  		cache_clear_all("variables", "cache_bootstrap");
+
+  		unset(self::variable_conf[name]);
+	}
+
+	public static final function _drupal_bootstrap_variables(string drupal_root) {
+	  require drupal_root . "/" . self::variable_get("lock_inc", "includes/lock.inc");
+	  lock_initialize();
+
+	  let self::variable_conf = self::variable_initialize();
+	  
+	  require drupal_root . "/includes/module.inc";
+	  module_load_all(true);
+	}	
 }
