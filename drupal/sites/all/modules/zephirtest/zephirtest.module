@@ -1,0 +1,210 @@
+<?php
+
+
+/**
+ * Implements hook_menu().
+ */
+function zephirtest_menu() {
+  $items['zephirtest'] = array(
+    'title' => 'Zephir Test',
+    'page callback' => 'zephirtest_dotest',
+    'description' => 'Runs the Zephir.',
+    'access callback' => true,
+  );
+
+  return $items;
+}
+
+/**
+ * The shown page for zephirtests, can be outputted with json
+ */
+function zephirtest_dotest() {
+  $json = isset($_GET['json']) && $_GET['json'] ? true : false;
+  $files = scandir(drupal_get_path('module', 'zephirtest') . '/tests');
+
+  $output = '';
+  if (arg(1)) {
+	foreach($files as $file) {
+	  if(strpos($file, '.inc')) {
+	  	if(arg(1) == str_replace('.inc', '', $file) || arg(1) == 'all') {
+	  	  include_once(drupal_get_path('module', 'zephirtest') . '/tests/' . $file);
+	  	  $results[$settings["name"]] = zephirtest_testing($settings);
+	  	  if($json) {
+	  	  	drupal_json_output($results);
+	  	  	exit;
+	  	  }
+
+	  	  $output .= '<h2>' . $settings["name"] . '</h2>';
+	  	  $output .= '<h3>' . t('Performance') . '</h3>';
+	  	  if(isset($results[$settings["name"]]["performance_runs"])) {
+	  	    $th = array(t('Times run'), t('Memory (bytes)'), t('Time (s)'));
+	  	    foreach($results[$settings["name"]]["performance_runs"] as $key => $value) {
+	  	    	$tr[] = array($key, $value["memory_usage"], $value["time"]);
+	  	    }
+	  	    $output .= theme('table', array('header' => $th, 'rows' => $tr));
+	  	  }
+	  	  unset($tr);
+
+	  	  $output .= '<h3>' . t('Functionality') . '</h3>';
+	  	  if(isset($results[$settings["name"]]["functional_test"])) {
+	  	    $th = array(t('Name'), t('Output (json encoded)'));
+	  	    foreach($results[$settings["name"]]["functional_test"] as $key => $value) {
+	  	    	$tr[] = array($key, json_encode($value));
+	  	    }
+	  	    $output .= theme('table', array('header' => $th, 'rows' => $tr));
+	  	  }
+	  	  unset($tr);
+	  	  $output .= '<hr>';
+	  	}
+	  }
+	}
+  } else {	  
+    $output .= "Run <strong>all the tests</strong> as " . l("Normal", 'zephirtest/all') . ", " . 
+    		l("JSON", 'zephirtest/all', array('query' => array('json' => true))) . "<br>";
+    $jsonarray = array();
+    foreach($files as $file) {
+      if(strpos($file, '.inc')) {
+        include_once(drupal_get_path('module', 'zephirtest') . '/tests/' . $file);
+        $jsonarray[] = str_replace('.inc', '', $file);
+      	$output .= "Run <strong>" . $settings['name'] . "()</strong> as " . l("Normal", 'zephirtest/' . str_replace('.inc', '', $file)) . ", " . 
+      	  l("JSON", 'zephirtest/' . str_replace('.inc', '', $file), array('query' => array('json' => true))) . "<br>";
+      }
+    }
+
+    if ($json) {
+      drupal_json_output($jsonarray);
+      exit;
+    }
+  }
+
+  return $output;
+}
+
+/**
+ * Function for doing the testing
+ */
+function zephirtest_testing($settings) {
+  $results = array();
+  
+  // Functional testing
+  if (isset($settings['functional_test'])) {
+  	foreach($settings['functional_test'] as $name => $test) {
+      $results['functional_test'][$name] = call_user_func_array($settings['name'], $test);
+  	}
+  }
+
+  // Performance testing
+  if (isset($settings['performance_input']) && isset($settings["performance_runs"])) {
+    foreach($settings["performance_runs"] as $amount) {
+      $time = 0;
+      $memory = 0;
+      for($i = 0; $i < $amount; $i++) {
+	    if (is_string($settings['performance_input']) && $settings['performance_input'] == 'random') {
+	      if (isset($settings['variables'])) {
+	    	$values = array();
+	        foreach($settings['variables'] as $variable) {
+	  		  $values[] = zephirtest_createrandom($variable);
+	  	    }
+	      }
+	    } elseif (is_array($settings['performance_input'])) {
+	      $values = $settings["performance_runs"];
+	    }
+	    $starttime = microtime(true);
+	    $startmemory = memory_get_usage();
+	    call_user_func_array($settings['name'], $values);
+	    $time = $time + (microtime(true) - $starttime);
+	    $memory = $memory + (memory_get_usage() - $startmemory);
+	  }
+	  $results["performance_runs"][$amount] = array("memory_usage" => $memory, "time" => $time);
+  	}
+  }
+  return $results;
+}
+
+/**
+ * Function for randomizing content
+ */
+function zephirtest_createrandom($type, $currentdepth = 1) {
+  $min_depth = isset($type['min_depth']) ? $type['min_depth'] : 1;
+  $max_depth = isset($type['max_depth']) ? $type['max_depth'] : 1;
+  $min_size = isset($type['min_size']) ? $type['min_size'] : 1;
+  $max_size = isset($type['max_size']) ? $type['max_size'] : 1;
+  $max_length_key = isset($type['max_length_key']) ? $type['max_length_key'] : 8;
+  $min_length_key = isset($type['min_length_key']) ? $type['min_length_key'] : 2;  
+  $max_length_value = isset($type['max_length_value']) ? $type['max_length_value'] : 20;
+  $min_length_value = isset($type['min_length_value']) ? $type['min_length_value'] : 10;
+  $signs = isset($type['signs']) ? $type['signs'] : false;
+  $with_query_string = isset($type['with_query_string']) ? $type['with_query_string'] : false;
+  $with_subdirectories = isset($type['with_subdirectories']) ? $type['with_subdirectories'] : false;
+  $protocol = isset($type['protocol']) ? $type['protocol'] : 'http';
+  $serialized = isset($type['serialized']) ? $type['serialized'] : 'null';
+
+  $returnvalue = null;
+  switch($type["type"]) {
+  	case 'value':
+  	  $returnvalue = $type["value"];
+  	  break;
+  	case 'null':
+  	  $returnvalue = null;
+  	  break; 
+  	case 'assoc_array':
+  	  $size = rand($min_size, $max_size);
+  	  $depth = rand($min_depth, $max_depth);
+  	  $valuelength = rand($min_length_value, $max_length_value);
+  	  $keylength = rand($min_length_key, $max_length_key);
+  	  for($i = 0; $i < $size; $i++) {
+  	  	if($depth > 1 && $depth != $currentdepth) {
+  	  		$returnvalue[zephirtest_generatestring($keylength)] = zephirtest_createrandom($type, $currentdepth++);
+  	  	} else {
+  	  		$returnvalue[zephirtest_generatestring($keylength)] = zephirtest_generatestring($valuelength);
+  	  	}
+  	  }
+  	  break;
+  	case 'string':
+  	  $valuelength = rand($min_length_value, $max_length_value);
+  	  $returnvalue = zephirtest_generatestring($valuelength, $signs);
+  	  break;
+  	// Creates random querystring
+  	case 'querystring':
+  	  $type['type'] = 'assoc_array';
+  	  $returnvalue = http_build_query(zephirtest_createrandom($type));
+      break;
+    case 'serialized':
+      $type['type'] = $serialized;
+      $returnvalue = serialize(zephirtest_createrandom($type));
+      break;
+    case 'url':
+      $valuelength = rand($min_length_value, $max_length_value);
+      $returnvalue = $protocol . '://' . zephirtest_generatestring($valuelength) . '.' . zephirtest_generatestring(3);
+      if ($with_subdirectories) {
+      	$depth = rand($min_depth, $max_depth);
+      	for ($i = 0; $i < $depth; $i++) {
+      	  $returnvalue .= '/' . zephirtest_generatestring($valuelength);
+      	}
+      }
+
+      if ($with_query_string) {
+      	$type['type'] = 'querystring';
+      	$returnvalue .= '?' . zephirtest_createrandom($type);
+      }
+      break;
+  }
+  return $returnvalue;
+}
+
+/**
+ * Function for creating a random string
+ */
+function zephirtest_generatestring($length = 10, $signs = false) {
+  $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if($signs) {
+  	$characters .= '\'%?#<>"=';
+  }
+
+  $charactersLength = strlen($characters);
+  $randomString = '';
+  for ($i = 0; $i < $length; $i++) {
+    $randomString .= $characters[rand(0, $charactersLength - 1)];
+  }
+  return $randomString;
+}

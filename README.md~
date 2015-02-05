@@ -7,4 +7,4 @@ Small test merging some function from Drupal with Zephir
 
 /scripts includes the source code files for Zephir
 
-/compare has a file that you can setup and run via cli or the website to compare two drupal instances (I use this with Jenkins for testing)
+/compare has a file that you can setup and run via cli or the website to compare two drupal instances (I use this with Jenkins)

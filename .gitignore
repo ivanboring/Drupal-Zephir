@@ -1,12 +1,14 @@
-drupal/compile-errors.log
-drupal/compile.log
-drupal/drupal/config.json
-drupal/ext/*
-drupal/ext/*/*
-drupal/ext/*/*/*
-drupal/.temp/*
-drupal/.temp/*/*
-drupal/ext/.libs/*
-drupal/ext/.libs/*/*
+compare/config.php
+scripts/drupal/compile-errors.log
+scripts/drupal/compile.log
+scripts/drupal/drupal/config.json
+scripts/drupal/ext/*
+scripts/drupal/ext/*/*
+scripts/drupal/ext/*/*/*
+scripts/drupal/.temp/*
+scripts/drupal/.temp/*/*
+scripts/drupal/.temp/*/*/*
+scripts/drupal/ext/.libs/*
+scrtips/drupal/ext/.libs/*/*
 !drupal/ext/kernel/*
 
