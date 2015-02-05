@@ -108,7 +108,31 @@ if(!$type) {
 	}
 	
 	if(php_sapi_name() === 'cli') {
-
+		foreach($output['zephir'] as $functionname => $value) {
+			cli_output($functionname, 'b');
+			if($type == 'b' || $type == 'ft') {
+				cli_output("Feature test.", 'p');
+				foreach($value->functional_test as $testname => $testvalue) {
+					if($testvalue == $output['drupal'][$functionname]->functional_test->{$testname}) {
+						cli_output("The test $testname was ok!"); 
+					} else {
+						cli_output("The test $testname did not match!");
+					}
+				}
+			}
+			if($type == 'b' || $type == 'pt') {
+				cli_output("Performance test.", 'p');
+				foreach($value->performance_runs as $amount => $values) {
+					$opposedvalues = $output['drupal'][$functionname]->performance_runs->{$amount};
+					$time = $values->time - $opposedvalues->time;
+					if($time < 0) {
+						cli_output("When running $amount times Zephir is " . round(($time * -1000), 5) . " ms slower");
+					} else {
+						cli_output("When running $amount times Zephir is " . round(($time * 1000), 5) . " ms faster");
+					}
+				}
+			}			
+		}
 	} else {
 		foreach($output['zephir'] as $functionname => $value) {
 			echo "<h2>" . $functionname . "</h2>";
