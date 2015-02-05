@@ -5,7 +5,7 @@ $settings = array();
 $settings["name"] = "check_plain";
 $settings["variables"][] = array("type" => "string", "html" => true, "min_length_value" => 15, "max_length_value" => 30);
 $settings["performance_input"] = "random";
-$settings["performance_runs"] = array(10, 1000);
+$settings["performance_runs"] = array(1000);
 
 // The functional tests
 $settings["functional_test"]["double_quotes"] = array("here I will write a double quote \" - how does it look in the source code?");

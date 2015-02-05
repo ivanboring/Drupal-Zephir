@@ -5,7 +5,7 @@ $settings = array();
 $settings["name"] = "drupal_get_query_parameters";
 $settings["variables"][] = array("type" => "assoc_array", "min_length_key" => 10, "max_length_key" => 20, "min_length_value" => 10, "max_length_value" => 20, "minsize" => 1, "maxsize" => 5, "mindepth" => 1, "maxdepth" => 2);
 $settings["performance_input"] = "random";
-$settings["performance_runs"] = array(10, 1000);
+$settings["performance_runs"] = array(1000);
 
 // The functional tests
 $settings["functional_test"]["with_q_also"] = array(array("test" => "marcus", array()));
