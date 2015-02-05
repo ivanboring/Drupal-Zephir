@@ -547,35 +547,7 @@ function timer_stop($name) {
  * @see default.settings.php
  */
 function conf_path($require_settings = TRUE, $reset = FALSE) {
-  $conf = &drupal_static(__FUNCTION__, '');
-  if ($conf && !$reset) {
-    return $conf;
-  }
-
-  $confdir = 'sites';
-
-  $sites = array();
-  if (file_exists(DRUPAL_ROOT . '/' . $confdir . '/sites.php')) {
-    // This will overwrite $sites with the desired mappings.
-    include(DRUPAL_ROOT . '/' . $confdir . '/sites.php');
-  }
-
-  $uri = explode('/', $_SERVER['SCRIPT_NAME'] ? $_SERVER['SCRIPT_NAME'] : $_SERVER['SCRIPT_FILENAME']);
-  $server = explode('.', implode('.', array_reverse(explode(':', rtrim($_SERVER['HTTP_HOST'], '.')))));
-  for ($i = count($uri) - 1; $i > 0; $i--) {
-    for ($j = count($server); $j > 0; $j--) {
-      $dir = implode('.', array_slice($server, -$j)) . implode('.', array_slice($uri, 0, $i));
-      if (isset($sites[$dir]) && file_exists(DRUPAL_ROOT . '/' . $confdir . '/' . $sites[$dir])) {
-        $dir = $sites[$dir];
-      }
-      if (file_exists(DRUPAL_ROOT . '/' . $confdir . '/' . $dir . '/settings.php') || (!$require_settings && file_exists(DRUPAL_ROOT . '/' . $confdir . '/' . $dir))) {
-        $conf = "$confdir/$dir";
-        return $conf;
-      }
-    }
-  }
-  $conf = "$confdir/default";
-  return $conf;
+  return Drupal\Bootstrap::conf_path($require_settings, $reset, DRUPAL_ROOT, $_SERVER);
 }
 
 /**
