@@ -3,6 +3,22 @@ namespace Drupal;
 final class ZephirHelper 
 {
 	/**
+	 * Array keys from php
+	 */
+	public static final function array_keys(array realarray, string search_value = "", boolean strict = false)->array {
+		var k, v;
+		array output = [];
+
+		for k, v in realarray {
+			if search_value == "" || search_value == k {
+				let output[] = k;
+			}
+		}
+
+		return output;
+	}
+
+	/**
 	 * Small version of array_slice. Does not allow minus offsets at the moment
 	 */
 	public static final function array_slice(array realarray, int offset, int length = 0)->array {
