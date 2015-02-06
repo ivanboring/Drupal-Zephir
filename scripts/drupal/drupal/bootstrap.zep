@@ -75,7 +75,7 @@ final class Bootstrap
 		var cached, variables, value, kname;
 		string name;
 
-		let cached = cache_get("variables", "cache_bootstrap");
+		let cached = Cache::cache_get("variables", "cache_bootstrap");
 	  	if typeof cached == "object" {
 	    	let variables = cached->data;
 	 	}
