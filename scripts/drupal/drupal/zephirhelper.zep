@@ -3,6 +3,150 @@ namespace Drupal;
 final class ZephirHelper 
 {
 	/**
+	 *
+	 */
+	public static final function rawurlencode(string text)->string {
+		char ch;
+		string output = "";
+
+		for ch in text {
+			switch(ch) {
+				case 'a':
+				case 'b':
+				case 'c':
+				case 'd':
+				case 'e':
+				case 'f':
+				case 'g':
+				case 'h':
+				case 'i':
+				case 'j':
+				case 'k':
+				case 'l':
+				case 'm':
+				case 'n':
+				case 'o':
+				case 'p':
+				case 'q':
+				case 'r':
+				case 's':
+				case 't':
+				case 'u':
+				case 'v':
+				case 'w':
+				case 'x':
+				case 'y':
+				case 'z':
+				case 'A':
+				case 'B':
+				case 'C':
+				case 'D':
+				case 'E':
+				case 'F':
+				case 'G':
+				case 'H':
+				case 'I':
+				case 'J':
+				case 'K':
+				case 'L':
+				case 'M':
+				case 'N':
+				case 'O':
+				case 'P':
+				case 'Q':
+				case 'R':
+				case 'S':
+				case 'T':
+				case 'U':
+				case 'V':
+				case 'W':
+				case 'X':
+				case 'Y':
+				case 'Z':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+				case '0':
+				case '.':
+				case '-':
+				case '_':
+				case '~':
+					let output .= ch;
+					break;
+				default:
+					let output .= "%" . sprintf("%X",ch);
+					break;
+			}
+		}
+
+		return output;
+	}
+
+	/**
+	 * simple str_replace from php (only works with strings)
+	 */
+	public static final function str_replace(string search, string replace, string subject, int count = 0)->string {
+		string output = "", temp = "";
+		char ch;
+		int length, foundindex = 0, foundamount = 0;
+		boolean passall = false;
+
+		let length = strlen(search);
+
+		for ch in subject {
+			// the count has passed
+			if passall {
+				let output .= ch;
+			}
+			// found the whole shebang
+			elseif ch == search[foundindex] && length == (foundindex+1) {
+				let output .= replace;
+				let temp = "";
+				let foundamount++;
+				let foundindex = 0;
+				if foundamount == count {
+					let passall = true;
+				}
+			}
+			// found parts
+			elseif ch == search[foundindex] {
+				let temp .= ch;
+				let foundindex++;
+			}
+			// was not the part
+			elseif foundindex > 0 {
+				let foundindex = 0;
+				let output .= temp;
+				let temp = "";				
+			}
+			else {
+				let output .= ch;
+			}
+		}
+		return output;
+	}
+
+	/**
+	 *
+	 */
+	public static final function array_flip(array realarray) {
+		array output = [];
+		var k, v;
+
+		for k, v in realarray {
+			let output[v] = k;
+		}
+
+		return output;
+	}
+
+	/**
 	 * Array keys from php
 	 */
 	public static final function array_keys(array realarray, string search_value = "", boolean strict = false)->array {

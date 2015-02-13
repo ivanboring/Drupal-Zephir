@@ -2,7 +2,8 @@ namespace Drupal;
 
 final class Common
 {
-    private static  drupal_add_region_content_content;
+    private static drupal_add_region_content_content;
+    private static drupal_strip_dangerous_protocols_allowed_protocols;
     /*
     public drupal_static_data = null;
     public drupal_static_default = null;
@@ -213,7 +214,10 @@ final class Common
     	return options;
     }
 
-    // drupal_encode_path is more or less native, so not implemented
+    public static function drupal_encode_path(string path) {
+        let path = ZephirHelper::rawurlencode(path);
+        return ZephirHelper::str_replace("%2F", "/", path);
+    }
 
 	/*
 	 * Around 100% slower than core, so not implemented
@@ -251,13 +255,17 @@ final class Common
     /*
      * Around 15% slower, so not implemented;
      */
-    public static final function drupal_strip_dangerous_protocols(string uri, var allowed_protocols = []) {
+    public static final function drupal_strip_dangerous_protocols(string uri) {
+    	
     	string tempuri = "";
         string returnuri = "";
         char ch;
         boolean foundcolon = false;
         boolean allok = false;
 
+        if (self::drupal_strip_dangerous_protocols_allowed_protocols == null) {
+        	let self::drupal_strip_dangerous_protocols_allowed_protocols = ZephirHelper::array_flip(Bootstrap::variable_get("filter_allowed_protocols", ["ftp", "http", "https", "irc", "mailto", "news", "nntp", "rtsp", "sftp", "ssh", "tel", "telnet", "webcal"]));
+        }
         let uri = strtolower(uri);
 
         for ch in uri {
@@ -266,7 +274,7 @@ final class Common
             }
             elseif ch == '?' || ch == '#' || ch == '/' {
                 if foundcolon == true {
-                    if isset allowed_protocols[tempuri] {
+                    if isset self::drupal_strip_dangerous_protocols_allowed_protocols[tempuri] {
                         let returnuri .= tempuri . ":";
                         let tempuri = "";
                     } else {
@@ -280,7 +288,7 @@ final class Common
             }
             elseif ch != ':' {
                 if foundcolon == true {
-                    if !isset allowed_protocols[tempuri] {
+                    if !isset self::drupal_strip_dangerous_protocols_allowed_protocols[tempuri] {
                         let tempuri = "";
                     }
                     let foundcolon = false;
@@ -318,5 +326,7 @@ final class Common
         }
         return "";
     }
+
+
 
 }
